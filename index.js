@@ -5,67 +5,86 @@ let Provider = ReactRedux.Provider;
 let connect  = ReactRedux.connect;
 
 function reducer(state, action) {
-    console.log( action );
     if (typeof state === 'undefined') {
         return { clicksCount: 0};
     }
+    console.log( action );
+    let clicksCount =  state.clicksCount;
     switch (action.type) {
         case 'INCREMENT':
-            return state + 1;
+            clicksCount += 1;
+            return {
+                clicksCount: clicksCount 
+            };
         case 'DECREMENT':
-            return state - 1;
-        default:
+            clicksCount -= 1;
+            return {
+                clicksCount: clicksCount 
+            };
+        default: 
             return state;
     }
 }
 
-class CommentBox extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { clicksCount: 2 };
-    }
+let App = ()=>{
+        return (
+            <div>
+                <ViewingContainer/>
+                <VotingContainer/>
+            </div>
+        )
+};
 
-    clickHandler(param) {
-        let { clicksCount } = this.state;
-        clicksCount += param;
-        this.setState({ clicksCount: clicksCount});
-        //this.props.dispatch( { type: 'INCREMENT', data: param } );
-    }
-
+class Voting extends React.Component {
     render() {
-        let { clicksCount } = this.state;
         return (
               <div>
-                  <h1>Hello, {this.props.appName}</h1>
-                  <p>Value {clicksCount}</p>
-                <p>
-                    <button onClick={() => { this.clickHandler(1); }}>+</button>
-                    <button onClick={() => { this.clickHandler(-1); }}>-</button>
-                </p>
-                </div>
+                    <button onClick={() => { this.props.onIncrement(1); }}>+</button>
+                    <button onClick={() => { this.props.onDecrement(-1); }}>-</button>
+              </div>
         );
     }
-    };
+};
 
+class Viewing extends React.Component {
+    render() {
+        return (
+              <div>
+                  <p>Value {this.props.clicksCount}</p>
+            </div>
+        );
+    }
+};
 
 const mapStateToProps = (state, ownProps) => {
-    console.log(state, ownProps );
-  return {}
+  return {
+      clicksCount: state.clicksCount
+  }
 }
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-     console.log(ownProps );
-  return {}
+  return {
+        onIncrement: (param) => {
+            dispatch({ type: 'INCREMENT', param: param });
+        },
+        onDecrement: (param) => {
+            dispatch({ type: 'DECREMENT', param: param });
+        }
+    }
 }
 
-const CommentBoxWrapper = connect(
-  mapStateToProps,
+const ViewingContainer = connect(
+  mapStateToProps
+)(Viewing);
+
+const VotingContainer = connect(
+    null,
   mapDispatchToProps
-)(CommentBox);
+)(Voting);
 
 ReactDOM.render(
         <Provider store={store}>
-            <CommentBoxWrapper appName="My first ReactRedux"/>
+            <App/>
         </Provider>,
         document.getElementById('content')
     );

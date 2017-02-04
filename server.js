@@ -8,4 +8,3 @@ http.createServer(function (request, response) {
   response.writeHead(200);
   fs.createReadStream( path.join( process.cwd(), pathname )).pipe(response);
 }).listen( 8080 );
-
